@@ -1,15 +1,14 @@
 import os
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 
 from database import db, create_document, get_documents
 from schemas import Blogpost, Tip, Challenge, Ebooktest
 
-app = FastAPI(title="Digital Sabbath API", version="1.0.0")
+app = FastAPI(title="Digitális Szombat API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -44,7 +43,7 @@ def collection_name(model_cls) -> str:
 
 @app.get("/")
 def read_root():
-    return {"message": "Digital Sabbath backend running"}
+    return {"message": "Digitális Szombat backend fut"}
 
 
 @app.get("/test")
@@ -112,10 +111,7 @@ def create_blogpost(payload: CreateBlogpost):
     if db[collection_name(Blogpost)].find_one({"slug": payload.slug}):
         raise HTTPException(status_code=400, detail="Slug already exists")
     _id = create_document(collection_name(Blogpost), payload)
-    created = db[collection_name(Blogpost)].find_one({"_id": db[collection_name(Blogpost)].find_one({"_id": db[collection_name(Blogpost)].inserted_id})})
-    # Simpler: fetch by slug
-    doc = db[collection_name(Blogpost)].find_one({"slug": payload.slug})
-    return _serialize(doc) if doc else {"id": _id}
+    return {"id": _id}
 
 
 # --------- Tips ---------
@@ -132,11 +128,6 @@ def list_tips(limit: Optional[int] = 50, tag: Optional[str] = None):
 @app.post("/api/tips", status_code=201)
 def create_tip(payload: CreateTip):
     _id = create_document(collection_name(Tip), payload)
-    doc = db[collection_name(Tip)].find_one({"_id": db[collection_name(Tip)].find_one({"_id": _id})})
-    doc = db[collection_name(Tip)].find_one({"_id": _id}) if False else None
-    # fetch by id
-    created = db[collection_name(Tip)].find_one({"_id": db[collection_name(Tip)].find_one})
-    # simpler: just return ack
     return {"id": _id}
 
 
@@ -178,26 +169,26 @@ def create_ebooktest(payload: CreateEbooktest):
 
 @app.post("/api/seed")
 def seed_demo():
-    """Insert a few demo documents if collections are empty"""
+    """Insert a few demo documents if collections are empty (Hungarian)"""
     out = {"inserted": {}}
     # Blogposts
     if db[collection_name(Blogpost)].count_documents({}) == 0:
         posts = [
             Blogpost(
-                title="שבת דיגיטלית: התחלה עדינה",
-                slug="digital-sabbath-intro",
-                excerpt="למה כדאי לעצור ולנשום פעם בשבוע?",
-                content="# פתיחה\nיום אחד בלי מסכים יכול לשנות הכול.",
-                tags=["התחלה", "מודעות"],
-                author="צוות Digital Sabbath",
+                title="Digitális szombat: gyengéd kezdet",
+                slug="digitalis-szombat-bevezeto",
+                excerpt="Miért érdemes hetente egyszer megállni és levegőt venni?",
+                content="# Bevezető\nEgy nap képernyők nélkül mindent megváltoztathat.",
+                tags=["kezdet", "tudatosság"],
+                author="Digital Sabbath csapat",
             ),
             Blogpost(
-                title="טקסים קטנים לשקט גדול",
-                slug="micro-rituals",
-                excerpt="הרגלים קצרים שמייצרים נוכחות.",
-                content="- נר דולק\n- נשימה מודעת\n- הליכה איטית",
-                tags=["טיפים", "מיינדפולנס"],
-                author="אורח",
+                title="Apró rituálék – nagy csend",
+                slug="apro-ritualek",
+                excerpt="Rövid szokások, amelyek jelenlétet teremtenek.",
+                content="- Gyertya meggyújtása\n- Tudatos légzés\n- Lassú séta",
+                tags=["tippek", "mindfulness"],
+                author="Vendég",
             ),
         ]
         for p in posts:
@@ -207,8 +198,8 @@ def seed_demo():
     # Tips
     if db[collection_name(Tip)].count_documents({}) == 0:
         tips = [
-            Tip(title="כבה התראות לשעה", description="הטלפון לא ייעלם—הרגע כן.", tags=["דיגיטל דיטוקס"]),
-            Tip(title="צא להליכה בלי אוזניות", description="תן לעולם להלחין.", tags=["מודעות"]),
+            Tip(title="Kapcsold ki az értesítéseket egy órára", description="A telefon megvár – a pillanat nem.", tags=["digitális detox"]),
+            Tip(title="Sétálj fülhallgató nélkül", description="Hagyd, hogy a világ komponáljon.", tags=["tudatosság"]),
         ]
         for t in tips:
             create_document(collection_name(Tip), t)
@@ -217,8 +208,8 @@ def seed_demo():
     # Challenges
     if db[collection_name(Challenge)].count_documents({}) == 0:
         challenges = [
-            Challenge(title="24 שעות ללא רשתות", description="שמור על סקרנות ללא גלילה", duration_days=1, tags=["דיגיטל דיטוקס"]),
-            Challenge(title="7 ימים של סקרנות איטית", description="כל יום טקס קטן אחד", duration_days=7),
+            Challenge(title="24 óra közösségi hálók nélkül", description="Őrizd meg a kíváncsiságot görgetés nélkül", duration_days=1, tags=["digitális detox"]),
+            Challenge(title="7 nap lassú kíváncsiság", description="Minden nap egy apró rituálé", duration_days=7),
         ]
         for c in challenges:
             create_document(collection_name(Challenge), c)
@@ -228,11 +219,11 @@ def seed_demo():
     if db[collection_name(Ebooktest)].count_documents({}) == 0:
         tests = [
             Ebooktest(
-                title="איזה ספר עזר לך להאט?",
-                description="מבחן קצר למציאת הקריאה הבאה",
-                questions=["מה מושך אותך יותר: פילוסופיה או פרקטיקה?", "כמה זמן יש לך ליום?"],
+                title="Melyik könyv segít lelassulni?",
+                description="Rövid teszt a következő olvasmány megtalálásához",
+                questions=["Mi vonz jobban: filozófia vagy gyakorlat?", "Mennyi időd van naponta?"],
                 recommended_reads=["Digital Minimalism", "How To Do Nothing"],
-                tags=["המלצות"],
+                tags=["ajánló"],
             )
         ]
         for e in tests:

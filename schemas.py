@@ -19,7 +19,7 @@ class Blogpost(BaseModel):
     tags: List[str] = Field(default_factory=list, description="Címkék")
     author: Optional[str] = Field(None, description="Szerző")
     published_at: Optional[datetime] = Field(None, description="Közzététel dátuma")
-    lang: str = Field("he", description="Nyelv (alapértelmezett: héber)")
+    lang: str = Field("hu", description="Nyelv (alapértelmezett: magyar)")
 
 
 class Tip(BaseModel):
@@ -28,7 +28,7 @@ class Tip(BaseModel):
     category: Optional[str] = None
     difficulty: Optional[str] = Field(None, description="easy | medium | hard")
     tags: List[str] = Field(default_factory=list)
-    lang: str = Field("he")
+    lang: str = Field("hu")
 
 
 class Challenge(BaseModel):
@@ -37,7 +37,7 @@ class Challenge(BaseModel):
     duration_days: int = Field(7, ge=1, le=90)
     focus: Optional[str] = Field(None, description="pl. tech detox, mindfulness")
     tags: List[str] = Field(default_factory=list)
-    lang: str = Field("he")
+    lang: str = Field("hu")
 
 
 class Ebooktest(BaseModel):
@@ -46,4 +46,4 @@ class Ebooktest(BaseModel):
     questions: List[str] = Field(default_factory=list)
     recommended_reads: List[str] = Field(default_factory=list, description="Kapcsolódó ebookok címei")
     tags: List[str] = Field(default_factory=list)
-    lang: str = Field("he")
+    lang: str = Field("hu")

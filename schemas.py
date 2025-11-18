@@ -1,48 +1,49 @@
 """
-Database Schemas
+Database Schemas for Digital Sabbath
 
-Define your MongoDB collection schemas here using Pydantic models.
-These schemas are used for data validation in your application.
-
-Each Pydantic model represents a collection in your database.
-Model name is converted to lowercase for the collection name:
-- User -> "user" collection
-- Product -> "product" collection
-- BlogPost -> "blogs" collection
+Each Pydantic model represents a MongoDB collection. The collection name
+is the lowercase of the class name.
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
+from datetime import datetime
 
-# Example schemas (replace with your own):
 
-class User(BaseModel):
-    """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+class Blogpost(BaseModel):
+    title: str = Field(..., description="Cím / כותרת")
+    slug: str = Field(..., description="URL-barát azonosító")
+    excerpt: Optional[str] = Field(None, description="Rövid leírás")
+    content: str = Field(..., description="Tartalom (Markdown vagy HTML)")
+    cover_image: Optional[str] = Field(None, description="Borítókép URL")
+    tags: List[str] = Field(default_factory=list, description="Címkék")
+    author: Optional[str] = Field(None, description="Szerző")
+    published_at: Optional[datetime] = Field(None, description="Közzététel dátuma")
+    lang: str = Field("he", description="Nyelv (alapértelmezett: héber)")
 
-class Product(BaseModel):
-    """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+class Tip(BaseModel):
+    title: str
+    description: str
+    category: Optional[str] = None
+    difficulty: Optional[str] = Field(None, description="easy | medium | hard")
+    tags: List[str] = Field(default_factory=list)
+    lang: str = Field("he")
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+
+class Challenge(BaseModel):
+    title: str
+    description: str
+    duration_days: int = Field(7, ge=1, le=90)
+    focus: Optional[str] = Field(None, description="pl. tech detox, mindfulness")
+    tags: List[str] = Field(default_factory=list)
+    lang: str = Field("he")
+
+
+class Ebooktest(BaseModel):
+    title: str
+    description: Optional[str] = None
+    questions: List[str] = Field(default_factory=list)
+    recommended_reads: List[str] = Field(default_factory=list, description="Kapcsolódó ebookok címei")
+    tags: List[str] = Field(default_factory=list)
+    lang: str = Field("he")
